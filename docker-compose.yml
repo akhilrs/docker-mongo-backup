@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  pgbackups:
+    image: akhilrs/postgres-backup-azure-blob:11-alpine
+    container_name: 'hcapp.pgbackup'
+    restart: always
+    volumes:
+      - ../db_backups:/backups
+    links:
+      - hcapp_db
+    depends_on:
+      - hcapp_db
+    environment:
+      - POSTGRES_HOST=PG_HOST
+      - POSTGRES_DB=PG_DB
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Password
+      - POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
+      - SCHEDULE=@every 12h0m0s # https://godoc.org/github.com/robfig/cron#hdr-Predefined_schedules
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=80
+      - AZURE_SA=SA
+      - AZURE_SA_KEY=SAKEY
+      - AZURE_SA_CONTAINER=db-backups
+    networks:
+      - backend
+networks:
+  backend:

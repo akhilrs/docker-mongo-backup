@@ -1,0 +1,61 @@
+FROM alpine:3.12
+
+LABEL maintainer="akhilrs <https://akhil.rs>"
+
+ARG GOCRONVER=v0.0.9
+ARG TARGETOS
+ARG TARGETARCH
+RUN apk add --no-cache \
+    coreutils \
+    bash \
+    tzdata \
+    py2-pip \
+    mongodb-tools \
+    curl
+
+RUN set -x \
+	&& apk update && apk add ca-certificates curl \
+	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH-static.gz | zcat > /usr/local/bin/go-cron \
+	&& chmod a+x /usr/local/bin/go-cron \
+	&& apk del ca-certificates
+
+ENV MONGO_DATABASE="**None**" \
+    MONGO_HOST="**None**" \
+    MONGO_PORT=5432 \
+    MONGO_USER="**None**" \
+    MONGO_PASSWORD="**None**" \
+    MONGO_AUTH_DB="**None**" \
+    MONGO_COLLETION="**None**" \
+    CLOUD_BACKUP=False \
+    SCHEDULE="@daily" \
+    BACKUP_DIR="/backups" \
+    BACKUP_KEEP_DAYS=7 \
+    BACKUP_KEEP_WEEKS=4 \
+    BACKUP_KEEP_MONTHS=6 \
+    HEALTHCHECK_PORT=8080 \
+    AZURE_SA="**None**" \
+    AZURE_SA_KEY="**None**" \
+    AZURE_SA_CONTAINER="**None**" 
+
+# Install Python3
+
+RUN apk add --no-cache python3 python3-dev libffi-dev gcc musl-dev openssl openssl-dev && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
+    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
+    rm -r /root/.cache
+
+RUN pip3 install azure
+
+COPY backup.sh /backup.sh
+COPY azblob.py /azblob.py
+
+VOLUME /backups
+
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["exec /usr/local/bin/go-cron -s \"$SCHEDULE\" -p \"$HEALTHCHECK_PORT\" -- /backup.sh"]
+
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl -f "http://localhost:$HEALTHCHECK_PORT/" || exit 1
