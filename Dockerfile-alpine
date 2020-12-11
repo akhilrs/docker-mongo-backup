@@ -14,7 +14,7 @@ RUN apk add --no-cache \
     curl
 
 RUN set -x \
-	&& apk update && apk add ca-certificates curl \
+	&& apk update && apk add ca-certificates \
 	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH-static.gz | zcat > /usr/local/bin/go-cron \
 	&& chmod a+x /usr/local/bin/go-cron \
 	&& apk del ca-certificates
@@ -22,35 +22,31 @@ RUN set -x \
 ENV MONGO_DATABASE="**None**" \
     MONGO_HOST="**None**" \
     MONGO_PORT=5432 \
-    MONGO_USER="**None**" \
+    MONGO_USERNAME="**None**" \
     MONGO_PASSWORD="**None**" \
     MONGO_AUTH_DB="**None**" \
     MONGO_COLLETION="**None**" \
     CLOUD_BACKUP=False \
+    CLOUD_PROVIDER="**None**" \
     SCHEDULE="@daily" \
     BACKUP_DIR="/backups" \
     BACKUP_KEEP_DAYS=7 \
-    BACKUP_KEEP_WEEKS=4 \
-    BACKUP_KEEP_MONTHS=6 \
+    BACKUP_KEEP_WEEKS=2 \
+    BACKUP_KEEP_MONTHS=1 \
     HEALTHCHECK_PORT=8080 \
-    AZURE_SA="**None**" \
-    AZURE_SA_KEY="**None**" \
-    AZURE_SA_CONTAINER="**None**" 
+    AZURE_SA_CONTAINER="**None**" \
+    AZURE_SA_CONNECTION_STRING="**None**"
 
 # Install Python3
 
-RUN apk add --no-cache python3 python3-dev libffi-dev gcc musl-dev openssl openssl-dev && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-    rm -r /root/.cache
+RUN apk add --no-cache python3-dev libffi-dev gcc musl-dev openssl openssl-dev
 
-RUN pip3 install azure
+COPY requirements.txt /requirements.txt
+RUN pip3 install -r requirements.txt
 
 COPY backup.sh /backup.sh
-COPY azblob.py /azblob.py
+COPY azblob_async.py /azblob_async.py
+COPY aws_async.py /aws_async.py
 
 VOLUME /backups
 

@@ -3,10 +3,10 @@
 set -e
 
 DOCKER_BAKE_FILE=${1:-"docker-bake.hcl"}
-TAGS=${TAGS:-"12 11 10 9.6 9.5 9.4"}
+TAGS=${TAGS:-"3.8 3.7 3.6 3.5"}
 GOCRONVER=${GOCRONVER:-"v0.0.9"}
-PLATFORMS=${PLATFORMS:-"linux/amd64"}
-IMAGE_NAME=${IMAGE_NAME:-"akhilrs/postgres-backup-azure-blob"}
+PLATFORMS=${PLATFORMS:-"linux/amd64 linux/arm64"}
+IMAGE_NAME=${IMAGE_NAME:-"akhilrs/files-backup-azure"}
 
 cd "$(dirname "$0")"
 
@@ -20,28 +20,23 @@ cat > "$DOCKER_BAKE_FILE" << EOF
 group "default" {
 	targets = [$T]
 }
-
 target "common" {
 	platforms = [$P]
 	args = {"GOCRONVER" = "$GOCRONVER"}
 }
-
 target "debian" {
 	inherits = ["common"]
 	dockerfile = "Dockerfile-debian"
 }
-
 target "alpine" {
 	inherits = ["common"]
 	dockerfile = "Dockerfile-alpine"
 }
-
 target "debian-latest" {
 	inherits = ["debian"]
 	args = {"BASETAG" = "$MAIN_TAG"}
 	tags = ["$IMAGE_NAME:latest", "$IMAGE_NAME:$MAIN_TAG"]
 }
-
 target "alpine-latest" {
 	inherits = ["alpine"]
 	args = {"BASETAG" = "$MAIN_TAG-alpine"}
@@ -50,13 +45,11 @@ target "alpine-latest" {
 EOF
 
 for TAG in $TAGS_EXTRA; do cat >> "$DOCKER_BAKE_FILE" << EOF
-
 target "debian-$TAG" {
   inherits = ["debian"]
 	args = {"BASETAG" = "$TAG"}
   tags = ["$IMAGE_NAME:$TAG"]
 }
-
 target "alpine-$TAG" {
   inherits = ["alpine"]
 	args = {"BASETAG" = "$TAG-alpine"}

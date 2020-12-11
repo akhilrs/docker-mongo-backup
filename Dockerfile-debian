@@ -10,15 +10,15 @@ RUN set -x \
 	&& chmod a+x /usr/local/bin/go-cron \
 	&& apt-get purge -y --auto-remove ca-certificates && apt-get clean
 
-ENV POSTGRES_DB="**None**" \
-    POSTGRES_DB_FILE="**None**" \
-    POSTGRES_HOST="**None**" \
-    POSTGRES_PORT=5432 \
-    POSTGRES_USER="**None**" \
-    POSTGRES_USER_FILE="**None**" \
-    POSTGRES_PASSWORD="**None**" \
-    POSTGRES_PASSWORD_FILE="**None**" \
-    POSTGRES_EXTRA_OPTS="-Z9" \
+ENV MONGO_DATABASE="**None**" \
+    MONGO_HOST="**None**" \
+    MONGO_PORT=5432 \
+    MONGO_USER="**None**" \
+    MONGO_PASSWORD="**None**" \
+    MONGO_AUTH_DB="**None**" \
+    MONGO_COLLETION="**None**" \
+    CLOUD_BACKUP=False \
+    CLOUD_PROVIDER="**None**" \
     SCHEDULE="@daily" \
     BACKUP_DIR="/backups" \
     BACKUP_KEEP_DAYS=7 \
@@ -27,16 +27,17 @@ ENV POSTGRES_DB="**None**" \
     HEALTHCHECK_PORT=8080 \
     AZURE_SA="**None**" \
     AZURE_SA_KEY="**None**" \
-    AZURE_SA_CONTAINER="**None**"
+    AZURE_SA_CONTAINER="**None**" 
+
 
 # Install Python3
-RUN apt-get update && apt-get install -y python3 python3-pip libffi-dev gcc openssl libssl-dev
-RUN apt-get -y install python3-dev
+RUN apt-get update && apt-get install -y python3-dev python3-pip libffi-dev gcc openssl libssl-dev
 
-RUN pip3 install azure
+COPY requirements.txt /requirements.txt
+RUN pip3 install -r requirements.txt
 
 COPY backup.sh /backup.sh
-COPY azblob.py /azblob.py
+COPY azblob_async.py /azblob_async.py
 
 VOLUME /backups
 
