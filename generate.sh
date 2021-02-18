@@ -66,7 +66,7 @@ target "debian-latest" {
 }
 target "alpine-latest" {
 	inherits = ["alpine"]
-	args = {"BASETAG" = "$MAIN_TAG-alpine"}
+	args = {"BASETAG" = "$MAIN_TAG"}
 	tags = ["$IMAGE_NAME:alpine", "$IMAGE_NAME:$MAIN_TAG-alpine"]
 }
 EOF
