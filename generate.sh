@@ -45,7 +45,7 @@ P="\"$(echo $PLATFORMS | sed 's/ /", "/g')\""
 
 cat > "$DOCKER_BAKE_FILE" << EOF
 group "default" {
-	targets = [alpine-latest]
+	targets = ["alpine-latest"]
 }
 target "common" {
 	platforms = [$P]
