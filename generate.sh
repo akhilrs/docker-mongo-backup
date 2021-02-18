@@ -43,8 +43,10 @@ cd "$(dirname "$0")"
 MAIN_TAG="latest"
 P="\"$(echo $PLATFORMS | sed 's/ /", "/g')\""
 
-
 cat > "$DOCKER_BAKE_FILE" << EOF
+group "default" {
+	targets = [alpine-latest]
+}
 target "common" {
 	platforms = [$P]
 	args = {"GOCRONVER" = "$GOCRONVER"}
