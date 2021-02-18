@@ -57,6 +57,6 @@ if [ "${CLOUD_BACKUP}" = "True" ]; then
   if [ "${CLOUD_PROVIDER}" = "Azure" ]; then
     python azblob_async.py ${DFILE}
   elif [ "${CLOUD_PROVIDER}" = "AWS" ]; then
-
+    python aws_async.py ${DFILE}
   fi
 fi

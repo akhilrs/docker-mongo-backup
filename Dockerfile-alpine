@@ -1,4 +1,5 @@
-FROM alpine:3.12
+ARG BASETAG=latest
+FROM alpine:$BASETAG
 
 LABEL maintainer="akhilrs <https://akhil.rs>"
 

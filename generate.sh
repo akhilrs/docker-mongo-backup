@@ -2,11 +2,40 @@
 
 set -e
 
+display_help() {
+    echo "Usage: $0 [options...]" >&2
+    echo
+    echo "   -p, --platforms     set target platform for build."
+    echo "   -h, --help          show this help text"
+    echo
+    exit 1
+}
+
+
+for i in "$@"
+do
+case $i in
+    -p=*|--platforms=*)
+    PLATFORMS="${i#*=}"
+    shift
+    ;;
+    -h | --help)
+    display_help
+    exit 0
+    ;;
+    *)
+    display_help
+    exit 0
+    # unknown option
+    ;;
+esac
+done
+
 DOCKER_BAKE_FILE=${1:-"docker-bake.hcl"}
 TAGS=${TAGS:-"3.8 3.7 3.6 3.5"}
 GOCRONVER=${GOCRONVER:-"v0.0.9"}
 PLATFORMS=${PLATFORMS:-"linux/amd64 linux/arm64"}
-IMAGE_NAME=${IMAGE_NAME:-"akhilrs/files-backup-azure"}
+IMAGE_NAME=${IMAGE_NAME:-"akhilrs/mongodb-cloud-backup"}
 
 cd "$(dirname "$0")"
 
