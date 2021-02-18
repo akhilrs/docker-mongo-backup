@@ -32,14 +32,15 @@ esac
 done
 
 DOCKER_BAKE_FILE=${1:-"docker-bake.hcl"}
-TAGS=${TAGS:-"3.8 3.7 3.6 3.5"}
+ALPINE_TAGS=${ALPINE_TAGS:-"3.12 3.11 3.10"}
+DEBIAN_TAGS=${DEBIAN_TAGS:-"stable stretch testing"}
 GOCRONVER=${GOCRONVER:-"v0.0.9"}
 PLATFORMS=${PLATFORMS:-"linux/amd64 linux/arm64"}
 IMAGE_NAME=${IMAGE_NAME:-"akhilrs/mongodb-cloud-backup"}
 
 cd "$(dirname "$0")"
 
-MAIN_TAG=${TAGS%%" "*} # First tag
+MAIN_TAG="latest"
 TAGS_EXTRA=${TAGS#*" "} # Rest of tags
 P="\"$(echo $PLATFORMS | sed 's/ /", "/g')\""
 
@@ -64,7 +65,7 @@ target "alpine" {
 target "debian-latest" {
 	inherits = ["debian"]
 	args = {"BASETAG" = "$MAIN_TAG"}
-	tags = ["$IMAGE_NAME:latest", "$IMAGE_NAME:$MAIN_TAG"]
+	tags = ["$IMAGE_NAME:latest", "$IMAGE_NAME:$MAIN_TAG-debian"]
 }
 target "alpine-latest" {
 	inherits = ["alpine"]
@@ -73,15 +74,19 @@ target "alpine-latest" {
 }
 EOF
 
-for TAG in $TAGS_EXTRA; do cat >> "$DOCKER_BAKE_FILE" << EOF
+for TAG in $DEBIAN_TAGS; do cat >> "$DOCKER_BAKE_FILE" << EOF
 target "debian-$TAG" {
   inherits = ["debian"]
 	args = {"BASETAG" = "$TAG"}
-  tags = ["$IMAGE_NAME:$TAG"]
+  tags = ["$IMAGE_NAME:$TAG-debian"]
 }
+EOF
+done
+
+for TAG in $ALPINE_TAGS; do cat >> "$DOCKER_BAKE_FILE" << EOF
 target "alpine-$TAG" {
   inherits = ["alpine"]
-	args = {"BASETAG" = "$TAG-alpine"}
+	args = {"BASETAG" = "$TAG"}
   tags = ["$IMAGE_NAME:$TAG-alpine"]
 }
 EOF
