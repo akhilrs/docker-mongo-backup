@@ -41,15 +41,10 @@ IMAGE_NAME=${IMAGE_NAME:-"akhilrs/mongodb-cloud-backup"}
 cd "$(dirname "$0")"
 
 MAIN_TAG="latest"
-TAGS_EXTRA=${TAGS#*" "} # Rest of tags
 P="\"$(echo $PLATFORMS | sed 's/ /", "/g')\""
 
-T="\"debian-latest\", \"alpine-latest\", \"$(echo debian-$TAGS_EXTRA | sed 's/ /", "debian-/g')\", \"$(echo alpine-$TAGS_EXTRA | sed 's/ /", "alpine-/g')\""
 
 cat > "$DOCKER_BAKE_FILE" << EOF
-group "default" {
-	targets = [$T]
-}
 target "common" {
 	platforms = [$P]
 	args = {"GOCRONVER" = "$GOCRONVER"}
