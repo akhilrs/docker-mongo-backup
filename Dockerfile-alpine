@@ -10,12 +10,12 @@ RUN apk add --no-cache \
     coreutils \
     bash \
     tzdata \
-    py2-pip \
+    py3-pip \
     mongodb-tools \
     curl
 
 RUN set -x \
-	&& apk update && apk add ca-certificates \
+	&& apk update && apk add ca-certificates tar gzip \
 	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH-static.gz | zcat > /usr/local/bin/go-cron \
 	&& chmod a+x /usr/local/bin/go-cron \
 	&& apk del ca-certificates
@@ -43,6 +43,7 @@ ENV MONGO_DATABASE="**None**" \
 RUN apk add --no-cache python3-dev libffi-dev gcc musl-dev openssl openssl-dev
 
 COPY requirements.txt /requirements.txt
+RUN pip3 install pip --upgrade
 RUN pip3 install -r requirements.txt
 
 COPY backup.sh /backup.sh

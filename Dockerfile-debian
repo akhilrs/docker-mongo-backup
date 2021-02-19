@@ -8,7 +8,7 @@ ARG GOCRONVER=v0.0.9
 ARG TARGETOS
 ARG TARGETARCH
 RUN set -x \
-	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/* \
+	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates curl tar gzip && rm -rf /var/lib/apt/lists/* \
 	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH.gz | zcat > /usr/local/bin/go-cron \
 	&& chmod a+x /usr/local/bin/go-cron \
 	&& apt-get purge -y --auto-remove ca-certificates && apt-get clean
