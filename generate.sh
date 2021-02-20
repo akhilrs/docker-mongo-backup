@@ -32,7 +32,7 @@ esac
 done
 
 DOCKER_BAKE_FILE=${1:-"docker-bake.hcl"}
-ALPINE_TAGS=${ALPINE_TAGS:-"3.12 3.11 3.10"}
+ALPINE_TAGS=${ALPINE_TAGS:-"3.12 3.11 3.10 latest"}
 DEBIAN_TAGS=${DEBIAN_TAGS:-"stable stretch testing"}
 GOCRONVER=${GOCRONVER:-"v0.0.9"}
 PLATFORMS=${PLATFORMS:-"linux/amd64 linux/arm64"}
@@ -41,44 +41,42 @@ IMAGE_NAME=${IMAGE_NAME:-"akhilrs/mongodb-cloud-backup"}
 cd "$(dirname "$0")"
 
 MAIN_TAG="latest"
+# T="\"$(echo $ALPINE_TAGS | sed 's/ /-alpine", "/g')\", \"$(echo $DEBIAN_TAGS | sed 's/ /-debian", "/g')\""
+T="\"$(echo $ALPINE_TAGS | sed 's/ /-alpine", "/g')\""
+
 P="\"$(echo $PLATFORMS | sed 's/ /", "/g')\""
 
 cat > "$DOCKER_BAKE_FILE" << EOF
 group "default" {
-	targets = ["alpine-latest"]
+	targets = [$T]
 }
 target "common" {
 	platforms = [$P]
 	args = {"GOCRONVER" = "$GOCRONVER"}
 }
-target "debian" {
-	inherits = ["common"]
-	dockerfile = "Dockerfile-debian"
-}
+# target "debian" {
+# 	inherits = ["common"]
+# 	dockerfile = "Dockerfile-debian"
+# }
 target "alpine" {
 	inherits = ["common"]
 	dockerfile = "Dockerfile-alpine"
 }
-target "debian-latest" {
-	inherits = ["debian"]
-	args = {"BASETAG" = "$MAIN_TAG"}
-	tags = ["$IMAGE_NAME:latest", "$IMAGE_NAME:$MAIN_TAG-debian"]
-}
-target "alpine-latest" {
-	inherits = ["alpine"]
-	args = {"BASETAG" = "$MAIN_TAG"}
-	tags = ["$IMAGE_NAME:alpine", "$IMAGE_NAME:$MAIN_TAG-alpine"]
+target "latest" {
+  inherits = ["alpine"]
+	args = {"BASETAG" = "latest"}
+  tags = ["$IMAGE_NAME:latest"]
 }
 EOF
 
-for TAG in $DEBIAN_TAGS; do cat >> "$DOCKER_BAKE_FILE" << EOF
-target "debian-$TAG" {
-  inherits = ["debian"]
-	args = {"BASETAG" = "$TAG"}
-  tags = ["$IMAGE_NAME:$TAG-debian"]
-}
-EOF
-done
+# for TAG in $DEBIAN_TAGS; do cat >> "$DOCKER_BAKE_FILE" << EOF
+# target "debian-$TAG" {
+#   inherits = ["debian"]
+# 	args = {"BASETAG" = "$TAG"}
+#   tags = ["$IMAGE_NAME:$TAG-debian"]
+# }
+# EOF
+# done
 
 for TAG in $ALPINE_TAGS; do cat >> "$DOCKER_BAKE_FILE" << EOF
 target "alpine-$TAG" {
