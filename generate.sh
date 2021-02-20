@@ -79,7 +79,7 @@ EOF
 # done
 
 for TAG in $ALPINE_TAGS; do cat >> "$DOCKER_BAKE_FILE" << EOF
-target "alpine-$TAG" {
+target "$TAG-alpine" {
   inherits = ["alpine"]
 	args = {"BASETAG" = "$TAG"}
   tags = ["$IMAGE_NAME:$TAG-alpine"]
