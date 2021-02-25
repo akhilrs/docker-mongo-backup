@@ -213,3 +213,4 @@ $RECYCLE.BIN/
 
 # Custom entries
 docker-bake.hcl
+.aws

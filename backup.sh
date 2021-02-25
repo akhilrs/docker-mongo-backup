@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 set -e
 
@@ -10,7 +10,6 @@ fi
 if [ "${MONGO_HOST}" = "**None**" ]; then
     echo "You need to set the POSTGRES_HOST environment variable."
     exit 1
-  fi
 fi
 
 if [ "${MONGO_USERNAME}" = "**None**" ]; then
