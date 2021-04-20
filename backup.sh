@@ -22,6 +22,10 @@ if [ "${MONGO_PASSWORD}" = "**None**" ]; then
   exit 1
 fi
 
+if [ "${MONGO_AUTH_DB}" = "**None**" ]; then
+  MONGO_AUTH_DB="admin"
+fi
+
 
 KEEP_DAYS=${BACKUP_KEEP_DAYS}
 KEEP_WEEKS=`expr $(((${BACKUP_KEEP_WEEKS} * 7) + 1))`
