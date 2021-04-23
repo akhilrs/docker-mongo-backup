@@ -30,6 +30,7 @@ fi
 KEEP_DAYS=${BACKUP_KEEP_DAYS}
 KEEP_WEEKS=`expr $(((${BACKUP_KEEP_WEEKS} * 7) + 1))`
 KEEP_MONTHS=`expr $(((${BACKUP_KEEP_MONTHS} * 31) + 1))`
+DB=${MONGO_DATABASE}
 
 
 #Initialize dirs
@@ -55,7 +56,7 @@ find "${BACKUP_DIR}/weekly" -maxdepth 1 -mtime +${KEEP_WEEKS} -name "${DB}-*.sql
 find "${BACKUP_DIR}/monthly" -maxdepth 1 -mtime +${KEEP_MONTHS} -name "${DB}-*.sql*" -exec rm -rf '{}' ';'
 echo "Mongo backup created successfully"
 
-which python
+echo `which python`
 
 # Executing python script for uploading SQL backup to azure blob storage
 if [ "${CLOUD_BACKUP}" = "True" ]; then
