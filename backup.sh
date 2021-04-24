@@ -56,8 +56,6 @@ find "${BACKUP_DIR}/weekly" -maxdepth 1 -mtime +${KEEP_WEEKS} -name "${DB}-*.sql
 find "${BACKUP_DIR}/monthly" -maxdepth 1 -mtime +${KEEP_MONTHS} -name "${DB}-*.sql*" -exec rm -rf '{}' ';'
 echo "Mongo backup created successfully"
 
-echo `which python`
-
 # Executing python script for uploading SQL backup to azure blob storage
 if [ "${CLOUD_BACKUP}" = "True" ]; then
   if [ "${CLOUD_PROVIDER}" = "Azure" ]; then
