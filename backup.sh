@@ -40,9 +40,9 @@ mkdir -p "${BACKUP_DIR}/daily/" "${BACKUP_DIR}/weekly/" "${BACKUP_DIR}/monthly/"
 #Initialize filename vers
 
 
-DFILE="${BACKUP_DIR}/daily/${DB}-`date +%Y%m%d-%H%M%S`.sql.gz"
-WFILE="${BACKUP_DIR}/weekly/${DB}-`date +%G%V`.sql.gz"
-MFILE="${BACKUP_DIR}/monthly/${DB}-`date +%Y%m`.sql.gz"
+DFILE="${BACKUP_DIR}/daily/${DB}-`date +%Y%m%d-%H%M%S`.gz"
+WFILE="${BACKUP_DIR}/weekly/${DB}-`date +%G%V`.dump.gz"
+MFILE="${BACKUP_DIR}/monthly/${DB}-`date +%Y%m`.dump.gz"
 #Create dump
 echo "Dumping MongoDB $MONGO_DATABASE database to compressed archive"
 mongodump --authenticationDatabase ${MONGO_AUTH_DB} -u ${MONGO_USERNAME} -p ${MONGO_PASSWORD} --host ${MONGO_HOST} --db ${MONGO_DATABASE} --archive="${DFILE}" --gzip
@@ -51,12 +51,12 @@ ln -vf "${DFILE}" "${WFILE}"
 ln -vf "${DFILE}" "${MFILE}"
 #Clean old files
 echo "Cleaning older than ${KEEP_DAYS} days for ${DB} database from ${POSTGRES_HOST}..."
-find "${BACKUP_DIR}/daily" -maxdepth 1 -mtime +${KEEP_DAYS} -name "${DB}-*.sql*" -exec rm -rf '{}' ';'
-find "${BACKUP_DIR}/weekly" -maxdepth 1 -mtime +${KEEP_WEEKS} -name "${DB}-*.sql*" -exec rm -rf '{}' ';'
-find "${BACKUP_DIR}/monthly" -maxdepth 1 -mtime +${KEEP_MONTHS} -name "${DB}-*.sql*" -exec rm -rf '{}' ';'
+find "${BACKUP_DIR}/daily" -maxdepth 1 -mtime +${KEEP_DAYS} -name "${DB}-*.dump*" -exec rm -rf '{}' ';'
+find "${BACKUP_DIR}/weekly" -maxdepth 1 -mtime +${KEEP_WEEKS} -name "${DB}-*.dump*" -exec rm -rf '{}' ';'
+find "${BACKUP_DIR}/monthly" -maxdepth 1 -mtime +${KEEP_MONTHS} -name "${DB}-*.dump*" -exec rm -rf '{}' ';'
 echo "Mongo backup created successfully"
 
-# Executing python script for uploading SQL backup to azure blob storage
+# Executing python script for uploading Mongo backup to azure blob storage
 if [ "${CLOUD_BACKUP}" = "True" ]; then
   if [ "${CLOUD_PROVIDER}" = "Azure" ]; then
     python3 azblob_async.py ${DFILE}
