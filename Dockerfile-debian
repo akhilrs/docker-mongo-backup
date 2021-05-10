@@ -1,5 +1,5 @@
 ARG BASETAG=latest
-FROM postgres:$BASETAG
+FROM alpine:$BASETAG
 
 
 LABEL maintainer="akhilrs <https://akhil.rs>"

@@ -63,7 +63,7 @@ services:
 | MONGO_USERNAME | Mongo connection parameter; mongo user to connect with. Required. |
 | MONGO_PASSWORD | Mongo connection parameter; mongo password. Required. |
 | MONGO_AUTH_DB |
-| SCHEDULE | [Cron-schedule](http://godoc.org/github.com/robfig/cron#hdr-Predefined_schedules) specifying the interval between postgres backups. Defaults to `@daily`. |
+| SCHEDULE | [Cron-schedule](http://godoc.org/github.com/robfig/cron#hdr-Predefined_schedules) specifying the interval between backups. Defaults to `@daily`. |
 
 
 ### Manual Backups
@@ -71,7 +71,7 @@ services:
 By default this container makes daily backups, but you can start a manual backup by running `/backup.sh`:
 
 ```sh
-$ docker run -e {envs}  akhilrs/mongodb-cloud-backup /backup.sh
+$ docker run -e {envs}  akhilrs/mongo-backup /backup.sh
 ```
 
 ### Automatic Periodic Backups

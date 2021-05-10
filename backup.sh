@@ -8,7 +8,7 @@ if [ "${MONGO_DATABASE}" = "**None**" ]; then
 fi
 
 if [ "${MONGO_HOST}" = "**None**" ]; then
-    echo "You need to set the POSTGRES_HOST environment variable."
+    echo "You need to set the MONGO_HOST environment variable."
     exit 1
 fi
 
@@ -50,7 +50,7 @@ mongodump --authenticationDatabase ${MONGO_AUTH_DB} -u ${MONGO_USERNAME} -p ${MO
 ln -vf "${DFILE}" "${WFILE}"
 ln -vf "${DFILE}" "${MFILE}"
 #Clean old files
-echo "Cleaning older than ${KEEP_DAYS} days for ${DB} database from ${POSTGRES_HOST}..."
+echo "Cleaning older than ${KEEP_DAYS} days for ${DB} database from ${MONGO_HOST}..."
 find "${BACKUP_DIR}/daily" -maxdepth 1 -mtime +${KEEP_DAYS} -name "${DB}-*.dump*" -exec rm -rf '{}' ';'
 find "${BACKUP_DIR}/weekly" -maxdepth 1 -mtime +${KEEP_WEEKS} -name "${DB}-*.dump*" -exec rm -rf '{}' ';'
 find "${BACKUP_DIR}/monthly" -maxdepth 1 -mtime +${KEEP_MONTHS} -name "${DB}-*.dump*" -exec rm -rf '{}' ';'

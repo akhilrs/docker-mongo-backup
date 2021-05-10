@@ -3,20 +3,16 @@ FROM alpine:$BASETAG
 
 LABEL maintainer="akhilrs <https://akhil.rs>"
 
-ARG GOCRONVER=v0.0.9
+ARG GOCRONVER=v0.0.10
 ARG TARGETOS
 ARG TARGETARCH
-RUN apk add --no-cache \
-    coreutils \
-    bash \
-    tzdata \
-    py3-pip \
-    mongodb-tools \
-    curl
+
+
+RUN apk add  mongodb-tools
 
 RUN set -x \
 	&& apk update && apk upgrade && \
-    apk add ca-certificates tar gzip \
+    apk add ca-certificates tar gzip curl \
 	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH-static.gz | zcat -f  > /usr/local/bin/go-cron \
 	&& chmod a+x /usr/local/bin/go-cron \
 	&& apk del ca-certificates
@@ -42,27 +38,20 @@ ENV MONGO_DATABASE="**None**" \
     AWS_ACCESS_KEY="**None**" \
     AWS_SECRET_KEY="**None**" \
     AWS_S3_BUCKET="**None**" \
-    S3_SUB_FOLDER="**None**"
+    AWS_S3_SUB_FOLDER="**None**"
 
-# Install Python3
-
-RUN apk add --no-cache python3-dev libffi-dev gcc musl-dev openssl openssl-dev
-
-RUN pip3 install pip --upgrade
-
-# Install Rust for building cryptography package
+# Install Python3 dependency packages and  (Rust for building cryptography package)
 
 ENV PATH="/root/.cargo/bin:${PATH}"
-RUN curl https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-musl/rustup-init --output /tmp/rustup-init \
+RUN apk add python3 py3-pip python3-dev gcc musl-dev libffi-dev openssl openssl-dev \
+    && curl https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-musl/rustup-init --output /tmp/rustup-init \
     && chmod +x /tmp/rustup-init \
     && /tmp/rustup-init -y \
-    && pip install --no-cache-dir poetry --ignore-installed 
-
-
-# Install dependencies
-COPY pyproject.toml poetry.lock /
-RUN set -ex && poetry config virtualenvs.create false
-RUN set -ex && poetry install
+    && pip3 install pip --upgrade \
+    && pip3 install azure-storage-blob==12.7.1 aiohttp==3.7.3 aioboto3==8.2.0 \
+    && rustup self uninstall -y \
+    && apk del gcc python3-dev musl-dev libffi-dev ca-certificates openssl openssl-dev \
+    && rm -rf /var/cache/apk/*
 
 
 COPY backup.sh /backup.sh
